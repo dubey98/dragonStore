@@ -1,0 +1,11 @@
+extends layout
+
+block content
+    h1= title
+    
+    - category_list.sort(function(a,b){let A = a.name.toUpperCase();let B = b.name.toUpperCase();return (A>B) ? 1 : (A<B) ? -1 : 0;});
+    each category in category_list
+        h3
+            a(href=category.url) #{category.name} 
+    else 
+        p there are no categories

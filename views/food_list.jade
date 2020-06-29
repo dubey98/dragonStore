@@ -1,0 +1,11 @@
+extends layout
+
+block content
+    h1= title
+    
+    - food_list.sort(function(a,b){let A = a.name.toUpperCase();let B = b.name.toUpperCase();return (A>B) ? 1 : (A<B) ? -1 : 0;});
+    each food in food_list
+        h3
+            a(href=food.url) #{food.name}
+    else 
+        p there is no food :(

@@ -2,4 +2,14 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p Welcome to the #[em dragon store],i made it to learn basic express functions 
+
+  if error
+    p error
+  else 
+    p The Store has the following item counts
+
+    ul
+      li #[strong Dragons : ] !{data.dragon_count}
+      li #[strong Categories : ] !{data.category_count}
+      li #[strong Foods : ] !{data.food_count}

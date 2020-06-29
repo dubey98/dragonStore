@@ -1,7 +1,13 @@
 const food = require("../models/food");
+const { nextTick } = require("async");
 
 exports.food_list = function (req, res) {
-  res.send("coming right up");
+  food.find({}).exec(function (err, list_food) {
+    if (err) {
+      return next(err);
+    }
+    res.render("food_list", { title: "Food List", food_list: list_food });
+  });
 };
 
 exports.food_detail = function (req, res) {

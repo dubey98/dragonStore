@@ -1,11 +1,18 @@
 const DragonCategory = require("../models/dragonCategory");
+const async = require("async");
 
 exports.category_list = function (req, res) {
-  res.send("coming right up");
+  DragonCategory.find({}, "name").exec(function (err, list_category) {
+    if (err) return next(err);
+    res.render("category_list", {
+      title: "All categories",
+      category_list: list_category,
+    });
+  });
 };
 
 exports.category_detail = function (req, res) {
-  res.send("you are a curious one");
+  async.parallel({});
 };
 
 exports.category_create_get = function (req, res) {

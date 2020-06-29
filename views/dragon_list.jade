@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    h1= title
+    
+    - dragon_list.sort(function(a,b){let A = a.name.toUpperCase();let B = b.name.toUpperCase();return (A>B) ? 1 : (A<B) ? -1 : 0;});
+    each dragon in dragon_list
+        h3
+            a(href=dragon.url) #{dragon.name}
+        p #{dragon.description}
+        a(href=dragon.category.url) #{dragon.category.name} 
+    else 
+        p there are no dragons
