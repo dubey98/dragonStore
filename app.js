@@ -4,11 +4,25 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
+//COnfiguring dotenv
+const result = require("dotenv").config();
+if (result.error) {
+  throw result.error;
+}
+//console.log(result.parsed);
+
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var catalogRouter = require("./routes/catalog");
 
 var app = express();
+
+//Database configuration
+const mongoose = require("mongoose");
+const mongoDB = process.env.DB_HOST;
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error"));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
