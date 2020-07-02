@@ -41,8 +41,26 @@ exports.dragon_list = function (req, res) {
     });
 };
 
-exports.dragon_detail = function (req, res) {
-  res.send("dragon not displayed yet" + req.params.id);
+exports.dragon_detail = function (req, res, next) {
+  async.series(
+    {
+      dragon: function (callback) {
+        Dragon.findById(req.params.id)
+          .populate("favfood")
+          .populate("category")
+          .exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results == null) {
+        let error = new Error("Dragon is missing ");
+        error.status = 404;
+        return next(error);
+      }
+      res.render("dragon_detail", { dragon: results.dragon });
+    }
+  );
 };
 
 exports.create_dragon_get = function (req, res) {

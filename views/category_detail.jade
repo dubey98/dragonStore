@@ -1,0 +1,14 @@
+extends layout
+
+block content
+    h1 #{title}
+
+    p(style=" margin-right :100px") #{category.description}
+    h3 Dragons
+
+    each dragon in dragons
+        h5 
+            a(href=dragon.url) #{dragon.name}
+    else 
+        p the category has no dragons registered. 
+

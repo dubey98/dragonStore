@@ -7,7 +7,7 @@ const dragonCategory = new Schema({
 });
 
 dragonCategory.virtual("url").get(function () {
-  return "/catalog/dragonCategory/" + this._id;
+  return "/catalog/category/" + this._id;
 });
 
 module.exports = mongoose.model("DragonCategory", dragonCategory);

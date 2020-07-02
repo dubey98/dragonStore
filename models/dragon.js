@@ -24,7 +24,7 @@ dragonSchema.virtual("lifespan").get(function () {
 });
 
 dragonSchema.virtual("url").get(function () {
-  return "/catalog/dragon" + this._id;
+  return "/catalog/dragon/" + this._id;
 });
 
 module.exports = mongoose.model("Dragon", dragonSchema);

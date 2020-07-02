@@ -1,4 +1,6 @@
 const DragonCategory = require("../models/dragonCategory");
+const Dragons = require("../models/dragon");
+
 const async = require("async");
 
 exports.category_list = function (req, res) {
@@ -11,8 +13,30 @@ exports.category_list = function (req, res) {
   });
 };
 
-exports.category_detail = function (req, res) {
-  async.parallel({});
+exports.category_detail = function (req, res, next) {
+  async.parallel(
+    {
+      category: function (callback) {
+        DragonCategory.findById(req.params.id).exec(callback);
+      },
+      dragons: function (callback) {
+        Dragons.find({ category: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.category == null) {
+        let Err = new Error("category not found");
+        Err.status = 404;
+        return next(Err);
+      }
+      res.render("category_detail", {
+        title: results.category.name,
+        category: results.category,
+        dragons: results.dragons,
+      });
+    }
+  );
 };
 
 exports.category_create_get = function (req, res) {
