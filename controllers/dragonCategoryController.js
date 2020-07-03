@@ -84,11 +84,54 @@ exports.category_create_post = [
 ];
 
 exports.category_delete_get = function (req, res) {
-  res.send("entire thing ");
+  async.parallel(
+    {
+      category: function (callback) {
+        DragonCategory.findById(req.params.id).exec(callback);
+      },
+      category_dragon: function (callback) {
+        DragonCategory.find({ category: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.category == null) res.redirect("/catalog/category/");
+      res.render("category_delete", {
+        title: "Delete Category",
+        category: results.category,
+        category_dragon: results.category_dragon,
+      });
+    }
+  );
 };
 
-exports.category_delete_post = function (req, res) {
-  res.send("deleting it !");
+exports.category_delete_post = function (req, res, next) {
+  async.parallel(
+    {
+      category: function (callback) {
+        DragonCategory.findById(req.params.id).exec(callback);
+      },
+      category_dragon: function (callback) {
+        Dragons.find({ category: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.category_dragon.length > 0) {
+        res.render("category_delete", {
+          title: "Delete Category",
+          category: results.category,
+          category_dragon: results.category_dragon,
+        });
+        return;
+      } else {
+        DragonCategory.findByIdAndRemove(req.body.id, function (err) {
+          if (err) return next(err);
+          res.redirect("/catalog/category");
+        });
+      }
+    }
+  );
 };
 
 exports.category_update_get = function (req, res) {

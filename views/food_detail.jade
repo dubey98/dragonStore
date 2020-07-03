@@ -5,3 +5,6 @@ block content
     h1 #{food.name}
 
     p #{food.description}
+    hr
+    a(href=food.url + '/delete')
+        button.btn.btn-danger(type="button") Delete

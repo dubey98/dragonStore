@@ -1,4 +1,5 @@
 const Food = require("../models/food");
+const Dragons = require("../models/dragon");
 
 const async = require("async");
 const validator = require("express-validator");
@@ -72,11 +73,54 @@ exports.food_create_post = [
 ];
 
 exports.food_delete_get = function (req, res) {
-  res.send("preparations....");
+  async.parallel(
+    {
+      food: function (callback) {
+        Food.findById(req.params.id).exec(callback);
+      },
+      dragons: function (callback) {
+        Dragons.find({ favfood: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.food == null) res.redirect("/catalog/food/");
+      res.render("food_delete", {
+        title: "Delete Food",
+        food: results.food,
+        food_dragons: results.dragons,
+      });
+    }
+  );
 };
 
 exports.food_delete_post = function (req, res) {
-  res.send("cooked ");
+  async.parallel(
+    {
+      food: function (callback) {
+        Food.findById(req.params.id).exec(callback);
+      },
+      dragons: function (callback) {
+        Dragons.find({ favfood: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.dragons.length > 0) {
+        res.render("food_delete", {
+          title: "Delete Food",
+          food: results.food,
+          food_dragons: results.dragons,
+        });
+        return;
+      }
+      console.log(results.dragons.length);
+      Food.findByIdAndRemove(req.params.id, function (err) {
+        if (err) return next(err);
+        res.redirect("/catalog/food/");
+      });
+    }
+  );
 };
 
 exports.food_update_get = function (req, res) {

@@ -1,0 +1,10 @@
+extends layout
+
+block content
+    h1 #{title} : #{dragon.name}
+
+    p Do you really want to delete this dragon ?
+
+    form(method='post' action='')
+        input(type='hidden',name='id' value=dragon._id)
+        button.btn.btn-danger(type='submit') Delete

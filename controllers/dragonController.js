@@ -112,13 +112,14 @@ exports.create_dragon_post = [
     let dragon = new Dragon({
       name: req.body.name,
       description: req.body.description,
-      weight: req.body.weight,
-      height: req.body.height,
-      speed: req.body.speed,
-      population: req.body.population,
       food: req.body.food,
       category: req.body.category,
     });
+
+    if (req.body.weight) dragon.weight = req.body.weight;
+    if (req.body.height) dragon.height = req.body.height;
+    if (req.body.speed) dragon.speed = req.body.speed;
+    if (req.body.population) dragon.population = req.body.population;
 
     if (!errors.isEmpty()) {
       async.parallel(
@@ -157,11 +158,28 @@ exports.create_dragon_post = [
 ];
 
 exports.delete_dragon_get = function (req, res) {
-  res.send("why");
+  async.parallel(
+    {
+      dragon: function (callback) {
+        Dragon.findById(req.params.id).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.dragon == null) res.redirect("/catalog/dragon_list/");
+      res.render("dragon_delete", {
+        title: "Delete Dragon",
+        dragon: results.dragon,
+      });
+    }
+  );
 };
 
 exports.delete_dragon_post = function (req, res) {
-  res.send("why");
+  Dragon.findByIdAndRemove(req.params.id, function (err) {
+    if (err) return next(err);
+    res.redirect("/catalog/dragon_list/");
+  });
 };
 
 exports.update_dragon_get = function (req, res) {
