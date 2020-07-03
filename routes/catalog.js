@@ -35,7 +35,7 @@ router.post("/category/create", dragonCategoryController.category_create_get);
 
 router.get(
   "/category/:id/delete",
-  dragonCategoryController.category_delete_get
+  dragonCategoryController.category_delete_post
 );
 
 router.post(
@@ -61,7 +61,7 @@ router.get("/food/", foodController.food_list);
 
 router.get("/food/create", foodController.food_create_get);
 
-router.post("/food/create", foodController.food_create_get);
+router.post("/food/create", foodController.food_create_post);
 
 router.get("/food/:id/delete", foodController.food_delete_get);
 

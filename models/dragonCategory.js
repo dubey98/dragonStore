@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const dragonCategory = new Schema({
-  name: { type: String, minlength: 1 },
+  name: { type: String, minlength: 1, required: true },
   description: { type: String, minlength: 1 },
 });
 

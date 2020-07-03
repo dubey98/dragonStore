@@ -1,0 +1,46 @@
+extends layout
+
+block content
+
+    h1 #{title}
+
+    form(method='POST' action='')
+        div.form-group
+            label(for='name') Title :
+            input#name.form-control(type='text',placeholder = 'name of the dragon' name='name' required="true" value=(undefined==dragon ? "" : dragon.name))
+        div.form-group
+            label(for='description') Description :
+            textarea#description.form-control(type='textarea',placeholder='description goes here' name='description' rowa='3' required='true') #{undefined===dragon ? '' : dragon.description}
+        div.form-group 
+            label(for='weight') Weight : 
+            input#weight.form-control(type='number',placeholder='500' name='weight' value=(undefined==dragon ? "" : dragon.weight) )
+        div.form-group 
+            label(for='height') Height : 
+            input#height.form-control(type='number',placeholder='50' name='height' value=(undefined==dragon ? "" : dragon.height) )
+        div.form-group 
+            label(for='speed') Speed : 
+            input#speed.form-control(type='number',placeholder='500' name='speed' value=(undefined==dragon ? "" : dragon.speed) )
+        div.form-group 
+            label(for='population') Population : 
+            input#population.form-control(type='number',placeholder='500' name='population' value=(undefined==dragon ? "" : dragon.speed) )
+        div.form-group
+            label(for="category") Category : 
+            select#category.form-control(type='select',placeholder='Select category' name='category' required='true')
+                - categories.sort(function(a,b){let A = a.name.toUpperCase(); let B = b.name.toUpperCase();return (A>B) ? 1 : A<B ? -1 :0;})
+                for category in categories
+                    if dragon
+                        option(value=category._id selected=(category._id.toString()==dragon.category ? 'selected' : false)) #{category.name}
+                    else 
+                        option(value=category._id) #{category.name}
+        div.form-group
+            label Food:
+            div
+            for food in foods
+                div(style='display: inline; padding-right:10px;')
+                    input.checkbox-input(type='checkbox', name='food', id=food._id, value=food._id, checked=food.checked )
+                    label(for=food._id) #{food.name}
+        button.btn.btn-primary(type='submit') Submit
+    if errors 
+        ul
+        for error in errors
+            li!= error.msg

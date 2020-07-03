@@ -1,8 +1,9 @@
 const Dragon = require("../models/dragon");
 const DragonCategory = require("../models/dragonCategory");
-const Food = require("../models/dragon");
+const Food = require("../models/food");
 
 const async = require("async");
+const validator = require("express-validator");
 
 exports.index = function (req, res) {
   async.parallel(
@@ -64,12 +65,96 @@ exports.dragon_detail = function (req, res, next) {
 };
 
 exports.create_dragon_get = function (req, res) {
-  res.send("aa blah blah blah");
+  // get all categories and foods to let the user select from
+  async.parallel(
+    {
+      categories: function (callback) {
+        DragonCategory.find(callback);
+      },
+      foods: function (callback) {
+        Food.find(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      res.render("dragon_form", {
+        title: "Create Dragon",
+        categories: results.categories,
+        foods: results.foods,
+      });
+    }
+  );
 };
 
-exports.create_dragon_post = function (req, res) {
-  res.send("aa blah blah blah");
-};
+exports.create_dragon_post = [
+  (req, res, next) => {
+    if (!(req.body.food instanceof Array)) {
+      if (typeof req.body.food === "undefined") req.body.food = [];
+      else req.body.food = new Array(req.body.food);
+    }
+    next();
+  },
+
+  validator
+    .body("name", "name of the dragon required")
+    .trim()
+    .isLength({ min: 1 }),
+  validator
+    .body("description", "description of the dragon required")
+    .trim()
+    .isLength({ min: 1 }),
+
+  validator.sanitizeBody("*").escape(),
+
+  (req, res, next) => {
+    const errors = validator.validationResult(req);
+
+    let dragon = new Dragon({
+      name: req.body.name,
+      description: req.body.description,
+      weight: req.body.weight,
+      height: req.body.height,
+      speed: req.body.speed,
+      population: req.body.population,
+      food: req.body.food,
+      category: req.body.category,
+    });
+
+    if (!errors.isEmpty()) {
+      async.parallel(
+        {
+          categories: function (callback) {
+            DragonCategory.find(callback);
+          },
+          foods: function (callback) {
+            Food.find(callback);
+          },
+        },
+        function (err, results) {
+          if (err) return next(err);
+          for (let i = 0; i < results.foods.length; i++) {
+            if (dragon.favfood.indexOf(results.foods[i]._id) > -1) {
+              results.foods[i].checked = "true";
+            }
+          }
+          res.render("dragon_form", {
+            title: "Create Dragon",
+            categories: results.categories,
+            foods: results.foods,
+            dragon: dragon,
+            errors: errors.array(),
+          });
+          return;
+        }
+      );
+    } else {
+      dragon.save(function (err) {
+        if (err) return next(err);
+        res.redirect(dragon.url);
+      });
+    }
+  },
+];
 
 exports.delete_dragon_get = function (req, res) {
   res.send("why");
