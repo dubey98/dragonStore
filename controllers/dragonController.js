@@ -4,6 +4,7 @@ const Food = require("../models/food");
 
 const async = require("async");
 const validator = require("express-validator");
+const dragon = require("../models/dragon");
 
 exports.index = function (req, res) {
   async.parallel(
@@ -111,11 +112,10 @@ exports.create_dragon_post = [
 
     let dragon = new Dragon({
       name: req.body.name,
+      favfood: req.body.food,
       description: req.body.description,
-      food: req.body.food,
       category: req.body.category,
     });
-
     if (req.body.weight) dragon.weight = req.body.weight;
     if (req.body.height) dragon.height = req.body.height;
     if (req.body.speed) dragon.speed = req.body.speed;
@@ -183,9 +183,123 @@ exports.delete_dragon_post = function (req, res) {
 };
 
 exports.update_dragon_get = function (req, res) {
-  res.send("coming right up!");
+  async.parallel(
+    {
+      dragon: function (callback) {
+        Dragon.findById(req.params.id)
+          .populate("category")
+          .populate("favfood")
+          .exec(callback);
+      },
+      foods: function (callback) {
+        Food.find(callback);
+      },
+      categories: function (callback) {
+        DragonCategory.find(callback);
+      },
+    },
+    function (err, results) {
+      console.log("fuck you once");
+      if (err) return next(err);
+      console.log("funck you twice");
+      if (results.dragon == null) {
+        const error = new Error("Dragon is missing.");
+        error.status = 404;
+        return next(error);
+      }
+      console.log("Im getting fucked");
+      for (let i = 0; i < results.foods.length; i++) {
+        for (let j = 0; j < results.dragon.favfood.length; j++) {
+          if (
+            results.foods[i]._id.toString() ==
+            results.dragon.favfood[j]._id.toString()
+          ) {
+            results.foods[i].checked = "true";
+          }
+        }
+      }
+      console.log("funck you");
+      res.render("dragon_form", {
+        title: "Update Dragon",
+        categories: results.categories,
+        dragon: results.dragon,
+        foods: results.foods,
+      });
+    }
+  );
 };
 
-exports.update_dragon_post = function (req, res) {
-  res.send("coming right up!");
-};
+exports.update_dragon_post = [
+  (req, res, next) => {
+    if (!(req.body.food instanceof Array)) {
+      if (typeof req.body.food === "undefined") req.body.food = [];
+      else req.body.food = new Array(req.body.food);
+    }
+    next();
+  },
+
+  validator
+    .body("name", "name of the dragon required")
+    .trim()
+    .isLength({ min: 1 }),
+  validator
+    .body("description", "description of the dragon required")
+    .trim()
+    .isLength({ min: 1 }),
+
+  validator.sanitizeBody("*").escape(),
+
+  (req, res, next) => {
+    const errors = validator.validationResult(req);
+
+    let dragon = new Dragon({
+      _id: req.params.id,
+      name: req.body.name,
+      description: req.body.description,
+      favfood: req.body.food,
+      category: req.body.category,
+    });
+
+    if (req.body.weight) dragon.weight = req.body.weight;
+    if (req.body.height) dragon.height = req.body.height;
+    if (req.body.speed) dragon.speed = req.body.speed;
+    if (req.body.population) dragon.population = req.body.population;
+
+    if (!errors.isEmpty()) {
+      async.parallel(
+        {
+          categories: function (callback) {
+            DragonCategory.find(callback);
+          },
+          foods: function (callback) {
+            Food.find(callback);
+          },
+        },
+        function (err, results) {
+          if (err) return next(err);
+          for (let i = 0; i < results.foods.length; i++) {
+            if (dragon.favfood.indexOf(results.foods[i]._id) > -1) {
+              results.foods[i].checked = "true";
+            }
+          }
+          res.render("dragon_form", {
+            title: "Update Dragon",
+            categories: results.categories,
+            foods: results.foods,
+            dragon: dragon,
+            errors: errors.array(),
+          });
+          return;
+        }
+      );
+    } else {
+      Dragon.findByIdAndUpdate(req.params.id, dragon, function (
+        err,
+        theDragon
+      ) {
+        if (err) return next(err);
+        res.redirect(theDragon.url);
+      });
+    }
+  },
+];

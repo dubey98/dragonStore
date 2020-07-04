@@ -123,10 +123,49 @@ exports.food_delete_post = function (req, res) {
   );
 };
 
-exports.food_update_get = function (req, res) {
-  res.send("preparations....");
+exports.food_update_get = function (req, res, next) {
+  async.parallel(
+    {
+      food: function (callback) {
+        Food.findById(req.params.id).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      res.render("food_form", {
+        title: "Update Food",
+        food: results.food,
+      });
+    }
+  );
 };
 
-exports.food_update_post = function (req, res) {
-  res.send("cooked ");
-};
+exports.food_update_post = [
+  validator.body("name", "Food name required").trim().isLength({ min: 1 }),
+  validator.body("name", "description is required").trim().isLength({ min: 1 }),
+
+  validator.sanitizeBody("name").escape(),
+  validator.sanitizeBody("description").escape(),
+
+  (req, res, next) => {
+    const errors = validator.validationResult(req);
+    let food = new Food({
+      name: req.body.name,
+      description: req.body.description,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      res.render("food_form", {
+        title: "Create Food again",
+        food: food,
+        errors: errors.array(),
+      });
+    } else {
+      Food.findByIdAndUpdate(req.params.id, food, {}, function (err, theFood) {
+        if (err) return next(err);
+        res.redirect(theFood.url);
+      });
+    }
+  },
+];

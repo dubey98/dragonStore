@@ -19,7 +19,7 @@ router.get("/dragon/:id/delete", dragonController.delete_dragon_get);
 
 router.post("/dragon/:id/delete", dragonController.delete_dragon_post);
 
-router.get("/dragon/:id/update", dragonController.update_dragon_post);
+router.get("/dragon/:id/update", dragonController.update_dragon_get);
 
 router.post("/dragon/:id/update", dragonController.update_dragon_post);
 
@@ -31,7 +31,7 @@ router.get("/category/", dragonCategoryController.category_list);
 
 router.get("/category/create", dragonCategoryController.category_create_get);
 
-router.post("/category/create", dragonCategoryController.category_create_get);
+router.post("/category/create", dragonCategoryController.category_create_post);
 
 router.get(
   "/category/:id/delete",
@@ -45,7 +45,7 @@ router.post(
 
 router.get(
   "/category/:id/update",
-  dragonCategoryController.category_update_post
+  dragonCategoryController.category_update_get
 );
 
 router.post(
@@ -67,7 +67,7 @@ router.get("/food/:id/delete", foodController.food_delete_get);
 
 router.post("/food/:id/delete", foodController.food_delete_post);
 
-router.get("/food/:id/update", foodController.food_update_post);
+router.get("/food/:id/update", foodController.food_update_get);
 
 router.post("/food/:id/update", foodController.food_update_post);
 

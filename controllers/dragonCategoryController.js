@@ -134,10 +134,57 @@ exports.category_delete_post = function (req, res, next) {
   );
 };
 
-exports.category_update_get = function (req, res) {
-  res.send("entire thing ");
+exports.category_update_get = function (req, res, next) {
+  async.parallel(
+    {
+      category: function (callback) {
+        DragonCategory.findById(req.params.id).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) return next(err);
+      if (results.category == null) {
+        const error = new Error("Category not found");
+        error.status = 404;
+        return next(error);
+      }
+      res.render("category_create", {
+        title: "Update Category",
+        category: results.category,
+      });
+    }
+  );
 };
 
-exports.category_update_post = function (req, res) {
-  res.send("deleting it !");
-};
+exports.category_update_post = [
+  validator.body("name", "name is required").trim().isLength({ min: 1 }),
+
+  validator.sanitizeBody("name").escape(),
+  validator.sanitizeBody("description").escape(),
+
+  (req, res, next) => {
+    const errors = validator.validationResult(req);
+
+    let category = new DragonCategory({
+      _id: req.params.id,
+      name: req.body.name,
+      description: req.body.description,
+    });
+
+    if (!errors.isEmpty()) {
+      res.render("category_create", {
+        title: "Create Category",
+        error: errors.array(),
+        category: category,
+      });
+    } else {
+      DragonCategory.findByIdAndUpdate(req.params.id, category, {}, function (
+        err,
+        theCategory
+      ) {
+        if (err) return next(err);
+        res.redirect(theCategory.url);
+      });
+    }
+  },
+];

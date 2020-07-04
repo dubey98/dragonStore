@@ -29,8 +29,8 @@ block content
                 - categories.sort(function(a,b){let A = a.name.toUpperCase(); let B = b.name.toUpperCase();return (A>B) ? 1 : A<B ? -1 :0;})
                 for category in categories
                     if dragon
-                        option(value=category._id selected=(category._id.toString()==dragon.category ? 'selected' : false)) #{category.name}
-                    else 
+                        option(value=category._id selected=(category._id.toString()==dragon.category._id || category._id.toString()==dragon.category ? 'selected' : false)) #{category.name}
+                    else
                         option(value=category._id) #{category.name}
         div.form-group
             label Food:
