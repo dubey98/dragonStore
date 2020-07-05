@@ -14,13 +14,7 @@ const dragonSchema = new Schema({
     ref: "DragonCategory",
     required: true,
   },
-  favfood: [{ type: Schema.Types.ObjectId, ref: "Food", required: true }],
-});
-
-dragonSchema.virtual("lifespan").get(function () {
-  return (
-    this.date_of_birth.getYear() - this.date_of_death.getYear()
-  ).toString();
+  favfood: [{ type: Schema.Types.ObjectId, ref: "Food" }],
 });
 
 dragonSchema.virtual("url").get(function () {

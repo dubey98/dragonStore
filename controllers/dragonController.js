@@ -105,17 +105,19 @@ exports.create_dragon_post = [
     .trim()
     .isLength({ min: 1 }),
 
-  validator.sanitizeBody("*").escape(),
+  validator.sanitizeBody("name").escape(),
+  validator.sanitizeBody("description").escape(),
 
   (req, res, next) => {
     const errors = validator.validationResult(req);
 
     let dragon = new Dragon({
       name: req.body.name,
-      favfood: req.body.food,
       description: req.body.description,
+      favfood: req.body.food,
       category: req.body.category,
     });
+
     if (req.body.weight) dragon.weight = req.body.weight;
     if (req.body.height) dragon.height = req.body.height;
     if (req.body.speed) dragon.speed = req.body.speed;
@@ -199,15 +201,12 @@ exports.update_dragon_get = function (req, res) {
       },
     },
     function (err, results) {
-      console.log("fuck you once");
       if (err) return next(err);
-      console.log("funck you twice");
       if (results.dragon == null) {
         const error = new Error("Dragon is missing.");
         error.status = 404;
         return next(error);
       }
-      console.log("Im getting fucked");
       for (let i = 0; i < results.foods.length; i++) {
         for (let j = 0; j < results.dragon.favfood.length; j++) {
           if (
@@ -218,7 +217,6 @@ exports.update_dragon_get = function (req, res) {
           }
         }
       }
-      console.log("funck you");
       res.render("dragon_form", {
         title: "Update Dragon",
         categories: results.categories,
@@ -247,11 +245,11 @@ exports.update_dragon_post = [
     .trim()
     .isLength({ min: 1 }),
 
-  validator.sanitizeBody("*").escape(),
+  validator.sanitizeBody("name").escape(),
+  validator.sanitizeBody("description").escape(),
 
   (req, res, next) => {
     const errors = validator.validationResult(req);
-
     let dragon = new Dragon({
       _id: req.params.id,
       name: req.body.name,
